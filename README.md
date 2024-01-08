@@ -103,4 +103,89 @@ public class LongestPalindromicSubstring {
     }
 }
 
+# Challenge 3
+
+Calculate Average and Deviation of JSON Objects with Subjects
+
+**Input:**
+
+- The input is an array of JSON objects, where each object has a "name" field (string) and a "grades" field (list of objects with "subject" and "grade" fields).
+
+**Output:**
+
+- The output is a dictionary with the following keys:
+    - "average_grades": a list of floats representing the average grade for each student.
+    - "average_subjects": a list of floats representing the average grade for each subject across all students.
+    - "overall_average": a float representing the overall average grade across all students.
+    - "std_deviation": a float representing the standard deviation of grades across all students.
+
+import math
+import statistics
+
+students_data = [
+    {
+        "name": "John Doe",
+        "grades": [
+            {"subject": "Math", "grade": 90},
+            {"subject": "English", "grade": 85},
+            {"subject": "Science", "grade": 92},
+            {"subject": "History", "grade": 88},
+            {"subject": "Art", "grade": 95}
+        ]
+    },
+    {
+        "name": "Jane Smith",
+        "grades": [
+            {"subject": "Math", "grade": 88},
+            {"subject": "English", "grade": 92},
+            {"subject": "Science", "grade": 87},
+            {"subject": "History", "grade": 90},
+            {"subject": "Art", "grade": 93}
+        ]
+    },
+    {
+        "name": "Bob Johnson",
+        "grades": [
+            {"subject": "Math", "grade": 78},
+            {"subject": "English", "grade": 85},
+            {"subject": "Science", "grade": 80},
+            {"subject": "History", "grade": 88},
+            {"subject": "Art", "grade": 82}
+        ]
+    }
+]
+
+# Gather all grades for each subject across all students
+grades_by_subject = {}
+for student in students_data:
+    for subject_info in student['grades']:
+        subject = subject_info['subject']
+        grade = subject_info['grade']
+        if subject in grades_by_subject:
+            grades_by_subject[subject].append(grade)
+        else:
+            grades_by_subject[subject] = [grade]
+
+# Calculate average grades for each student
+average_grades = [statistics.mean(student['grades'], key=lambda x: x['grade']) for student in students_data]
+
+# Calculate average grades for each subject
+average_subjects = [statistics.mean(grades) for grades in grades_by_subject.values()]
+
+# Calculate overall average
+overall_average = statistics.mean(average_grades)
+
+# Calculate standard deviation
+all_grades = [grade for grades in grades_by_subject.values() for grade in grades]
+std_deviation = statistics.stdev(all_grades)
+
+# Prepare the expected output
+expected_output = {
+    "average_grades": average_grades,
+    "average_subjects": average_subjects,
+    "overall_average": overall_average,
+    "std_deviation": std_deviation
+}
+
+print(expected_output)
 
