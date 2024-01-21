@@ -189,3 +189,85 @@ expected_output = {
 
 print(expected_output)
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class StudentGrades {
+
+    public static void main(String[] args) {
+        List<Map<String, Object>> studentsData = List.of(
+            Map.of("name", "John Doe", "grades", List.of(
+                Map.of("subject", "Math", "grade", 90),
+                Map.of("subject", "English", "grade", 85),
+                Map.of("subject", "Science", "grade", 92),
+                Map.of("subject", "History", "grade", 88),
+                Map.of("subject", "Art", "grade", 95)
+            )),
+            Map.of("name", "Jane Smith", "grades", List.of(
+                Map.of("subject", "Math", "grade", 88),
+                Map.of("subject", "English", "grade", 92),
+                Map.of("subject", "Science", "grade", 87),
+                Map.of("subject", "History", "grade", 90),
+                Map.of("subject", "Art", "grade", 93)
+            )),
+            Map.of("name", "Bob Johnson", "grades", List.of(
+                Map.of("subject", "Math", "grade", 78),
+                Map.of("subject", "English", "grade", 85),
+                Map.of("subject", "Science", "grade", 80),
+                Map.of("subject", "History", "grade", 88),
+                Map.of("subject", "Art", "grade", 82)
+            ))
+        );
+
+        // Gather all grades for each subject across all students
+        Map<String, List<Integer>> gradesBySubject = new HashMap<>();
+        studentsData.forEach(student -> {
+            List<Map<String, Object>> grades = (List<Map<String, Object>>) student.get("grades");
+            grades.forEach(gradeInfo -> {
+                String subject = (String) gradeInfo.get("subject");
+                int grade = (int) gradeInfo.get("grade");
+                gradesBySubject.computeIfAbsent(subject, k -> new ArrayList<>()).add(grade);
+            });
+        });
+
+        // Calculate average grades for each student
+        List<Double> averageGrades = studentsData.stream()
+            .map(student -> ((List<Map<String, Object>>) student.get("grades")).stream()
+                .collect(Collectors.averagingInt(gradeInfo -> (int) gradeInfo.get("grade"))))
+            .collect(Collectors.toList());
+
+        // Calculate average grades for each subject
+        List<Double> averageSubjects = gradesBySubject.values().stream()
+            .map(grades -> grades.stream().collect(Collectors.averagingInt(Integer::intValue)))
+            .collect(Collectors.toList());
+
+        // Calculate overall average
+        double overallAverage = averageGrades.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+
+        // Calculate standard deviation
+        List<Integer> allGrades = gradesBySubject.values().stream()
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
+
+        double stdDeviation = calculateStandardDeviation(allGrades);
+
+        // Prepare the expected output
+        Map<String, Object> expectedOutput = Map.of(
+            "average_grades", averageGrades,
+            "average_subjects", averageSubjects,
+            "overall_average", overallAverage,
+            "std_deviation", stdDeviation
+        );
+
+        System.out.println(expectedOutput);
+    }
+
+    private static double calculateStandardDeviation(List<Integer> data) {
+        double mean = data.stream().mapToInt(Integer::intValue).average().orElse(0);
+        double variance = data.stream().mapToDouble(x -> Math.pow(x - mean, 2)).average().orElse(0);
+        return Math.sqrt(variance);
+    }
+}
